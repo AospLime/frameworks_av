@@ -3322,7 +3322,7 @@ void CameraService::updateStatus(StatusInternal status, const String8& cameraId,
     }
     // Update the status for this camera state, then send the onStatusChangedCallbacks to each
     // of the listeners with both the mStatusStatus and mStatusListenerLock held
-    state->updateStatus(status, cameraId, rejectSourceStates, [this,&isHidden]
+    state->updateStatus(status, cameraId, rejectSourceStates, [this, &isHidden, &supportsHAL3]
             (const String8& cameraId, StatusInternal status) {
 
             if (status != StatusInternal::ENUMERATING) {
@@ -3344,15 +3344,8 @@ void CameraService::updateStatus(StatusInternal status, const String8& cameraId,
             Mutex::Autolock lock(mStatusListenerLock);
 
             for (auto& listener : mListenerList) {
-                bool isVendorListener = listener.first;
-                if (isVendorListener && !supportsHAL3) {
-                    ALOGV("Skipping vendor listener camera discovery callback for  HAL1 camera %s",
-                            cameraId.c_str());
-                    continue;
-                }
-
-                if (!isVendorListener && isHidden) {
-                    ALOGV("Skipping camera discovery callback for system-only camera %s",
+                if (!listener.first &&  (isHidden || !supportsHAL3)) {
+                    ALOGV("Skipping camera discovery callback for system-only / HAL1 camera %s",
                           cameraId.c_str());
                     continue;
                 }
