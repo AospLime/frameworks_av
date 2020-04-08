@@ -3322,7 +3322,7 @@ void CameraService::updateStatus(StatusInternal status, const String8& cameraId,
     }
     // Update the status for this camera state, then send the onStatusChangedCallbacks to each
     // of the listeners with both the mStatusStatus and mStatusListenerLock held
-    state->updateStatus(status, cameraId, rejectSourceStates, [this, &isHidden, &supportsHAL3]
+    state->updateStatus(status, cameraId, rejectSourceStates, [this,&isHidden]
             (const String8& cameraId, StatusInternal status) {
 
             if (status != StatusInternal::ENUMERATING) {
